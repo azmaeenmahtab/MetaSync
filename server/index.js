@@ -53,24 +53,25 @@ app.use((req, res) => {
 });
 
 // ---------------------------------------------------------------------------
-// Start WebSocket Server (real-time channel to the React Native app)
+// Start HTTP & WebSocket Server (shared port 3001)
 // ---------------------------------------------------------------------------
-createWebSocketServer(WS_PORT);
+const http = require("http");
+const server = http.createServer(app);
 
-// ---------------------------------------------------------------------------
-// Start HTTP Server (receives webhook calls from Meta via ngrok)
-// ---------------------------------------------------------------------------
-app.listen(HTTP_PORT, () => {
+// Attach WebSocket server to the same HTTP server
+createWebSocketServer(server);
+
+server.listen(HTTP_PORT, () => {
   console.log("=".repeat(50));
   console.log("  Meta Leads Server — RUNNING");
   console.log("=".repeat(50));
-  console.log(`  HTTP  (webhook) → http://localhost:${HTTP_PORT}`);
-  console.log(`  WS    (realtime) → ws://localhost:${WS_PORT}`);
-  console.log(`  Health check     → http://localhost:${HTTP_PORT}/health`);
+  console.log(`  HTTP (webhook)  → http://localhost:${HTTP_PORT}`);
+  console.log(`  WS   (realtime) → ws://localhost:${HTTP_PORT}`);
+  console.log(`  Health check    → http://localhost:${HTTP_PORT}/health`);
   console.log("=".repeat(50));
   console.log("  Next steps:");
-  console.log("  1. Copy .env.example → .env and fill in your tokens");
-  console.log("  2. Run: ngrok http 3001");
-  console.log("  3. Register the ngrok URL in Meta dashboard");
+  console.log("  1. Run: npx localtunnel --port 3001");
+  console.log("  2. Register callback URL in Meta dashboard:");
+  console.log("     https://<your-subdomain>.loca.lt/webhook/meta");
   console.log("=".repeat(50));
 });

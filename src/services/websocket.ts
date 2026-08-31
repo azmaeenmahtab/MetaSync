@@ -42,23 +42,41 @@
  */
 
 import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 import type { WebSocketMessage, ConnectionStatus } from '@/features/leads/types';
 
 // ─────────────────────────────────────────────────────────────────
 // CONFIG — WebSocket server address
 // ─────────────────────────────────────────────────────────────────
-// Android emulator can't use "localhost" to reach your host machine.
-// It uses the special alias 10.0.2.2 instead.
-// iOS simulator CAN use localhost normally.
-// Physical devices need your actual LAN IP (see instructions above).
-// ─────────────────────────────────────────────────────────────────
-const WS_HOST = Platform.select({
-  android: '10.0.2.2',   // Android emulator → host machine alias
-  ios: 'localhost',       // iOS simulator → localhost works
-  default: 'localhost',
-});
+// Auto-detect the machine's IP address when running via Expo Go on physical device:
+// Expo hostUri format is "192.168.1.107:8081" -> extracts "192.168.1.107"
+function getDevServerHost(): string {
+  // If running in browser (Expo Web) or iOS simulator
+  if (Platform.OS === 'web' || Platform.OS === 'ios') {
+    return typeof window !== 'undefined' && window.location?.hostname
+      ? window.location.hostname
+      : 'localhost';
+  }
 
-const WS_PORT = 3002;
+  // Physical Device / Expo Go auto-detection
+  const hostUri =
+    Constants.expoConfig?.hostUri ||
+    (Constants as any).manifest2?.extra?.expoGo?.debuggerHost ||
+    (Constants as any).manifest?.debuggerHost;
+
+  if (hostUri) {
+    const host = hostUri.split(':')[0];
+    if (host && !host.includes('.exp.') && !host.includes('tunnel')) {
+      return host;
+    }
+  }
+
+  // Fallback for Android emulator / physical device on same Wi-Fi
+  return '192.168.0.101';
+}
+
+const WS_HOST = getDevServerHost();
+const WS_PORT = 3001; // Shared with HTTP server
 const WS_URL = `ws://${WS_HOST}:${WS_PORT}`;
 
 // How long to wait before trying to reconnect after a disconnect (ms)

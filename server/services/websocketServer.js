@@ -19,15 +19,20 @@ const clients = new Set();
 let wss = null;
 
 /**
- * Creates and starts the WebSocket server on the given port.
- * Called once when the main server starts up.
+ * Creates and starts the WebSocket server.
+ * Can attach directly to an HTTP server (sharing port 3001) or listen on a standalone port.
  */
-function createWebSocketServer(port) {
-  wss = new WebSocketServer({ port });
-
-  wss.on("listening", () => {
-    console.log(`[WebSocket] Server listening on ws://localhost:${port}`);
-  });
+function createWebSocketServer(serverOrPort) {
+  if (typeof serverOrPort === "number" || typeof serverOrPort === "string") {
+    wss = new WebSocketServer({ port: Number(serverOrPort) });
+    wss.on("listening", () => {
+      console.log(`[WebSocket] Server listening on ws://localhost:${serverOrPort}`);
+    });
+  } else {
+    // Attached to existing HTTP server (e.g. port 3001)
+    wss = new WebSocketServer({ server: serverOrPort });
+    console.log(`[WebSocket] Server attached to HTTP server`);
+  }
 
   // This fires every time a new client (our RN app) connects
   wss.on("connection", (socket) => {
