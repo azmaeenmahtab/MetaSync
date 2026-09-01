@@ -1,15 +1,4 @@
-/**
- * index.js  —  Server Entry Point
- *
- * This is where everything starts. It:
- *   1. Loads environment variables from .env
- *   2. Creates an Express HTTP server (handles webhook calls from Meta)
- *   3. Creates a WebSocket server (pushes leads to the React Native app)
- *   4. Connects the webhook route
- *   5. Starts listening
- *
- * MERN analogy: This is like your server.js or app.js in an Express/Node backend.
- */
+
 
 require("dotenv").config();
 
@@ -17,18 +6,13 @@ const express = require("express");
 const { createWebSocketServer } = require("./services/websocketServer");
 const webhookRouter = require("./routes/webhook");
 
-// ---------------------------------------------------------------------------
-// Config — pulled from .env file (copy .env.example → .env and fill it in)
-// ---------------------------------------------------------------------------
+
 const HTTP_PORT = process.env.HTTP_PORT || 3001;
 const WS_PORT = process.env.WS_PORT || 3002;
 
-// ---------------------------------------------------------------------------
-// Express App Setup (handles webhook HTTP requests from Meta)
-// ---------------------------------------------------------------------------
 const app = express();
 
-// Parse incoming JSON bodies (Meta sends JSON in webhook POST requests)
+
 app.use(express.json());
 
 // Health check endpoint — useful to confirm the server is running

@@ -1,15 +1,4 @@
-/**
- * LeadCard.tsx
- *
- * Renders a single lead as a styled card.
- *
- * Features:
- *  - Animated entrance (slides in from the top + fade)
- *  - Avatar circle with the lead's initials
- *  - Name, email, phone fields
- *  - Relative time ("2 minutes ago") instead of raw ISO string
- *  - Respects the app's light/dark theme via useTheme()
- */
+
 
 import { useEffect, useRef } from 'react';
 import { Animated, Platform, StyleSheet, View } from 'react-native';
@@ -19,9 +8,7 @@ import { Colors, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import type { Lead } from '@/features/leads/types';
 
-// ─────────────────────────────────────────────────────────────────
-// Brand accent color — used for avatar background and "NEW" badge
-// ─────────────────────────────────────────────────────────────────
+
 const ACCENT = '#208AEF';
 
 interface LeadCardProps {
@@ -119,9 +106,7 @@ export function LeadCard({ lead, isNew = false }: LeadCardProps) {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────
-// Helpers
-// ─────────────────────────────────────────────────────────────────
+
 
 /** Gets up-to-2-letter initials from a full name. "John Doe" → "JD" */
 function getInitials(name: string): string {
@@ -150,9 +135,7 @@ function formatRelativeTime(isoString: string): string {
   return `${hours} hour${hours > 1 ? 's' : ''} ago`;
 }
 
-// ─────────────────────────────────────────────────────────────────
-// Styles
-// ─────────────────────────────────────────────────────────────────
+
 const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',

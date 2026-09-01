@@ -1,16 +1,4 @@
-/**
- * webhook.js  (Express Router)
- *
- * This file handles all requests to the /webhook/meta route.
- *
- * Two endpoints:
- *
- *  1. GET  /webhook/meta  → Meta calls this once to VERIFY your webhook URL is real.
- *                           You respond with hub.challenge to prove you own the server.
- *
- *  2. POST /webhook/meta  → Meta calls this every time a lead form is submitted.
- *                           We parse the lead data and broadcast it via WebSocket.
- */
+
 
 const express = require("express");
 const fetch = require("node-fetch");
@@ -18,17 +6,7 @@ const { broadcast } = require("../services/websocketServer");
 
 const router = express.Router();
 
-// ---------------------------------------------------------------------------
-// GET /webhook/meta  —  Webhook Verification (one-time setup)
-// ---------------------------------------------------------------------------
-// When you register your webhook URL in Meta's dashboard, Meta sends a GET
-// request with three query params:
-//   hub.mode        = "subscribe"
-//   hub.verify_token = the token you set in Meta dashboard (must match .env)
-//   hub.challenge    = a random string Meta wants you to echo back
-//
-// If the tokens match → respond with hub.challenge → Meta marks webhook as verified ✅
-// ---------------------------------------------------------------------------
+
 router.get("/", (req, res) => {
   const mode = req.query["hub.mode"];
   const token = req.query["hub.verify_token"];
@@ -46,30 +24,7 @@ router.get("/", (req, res) => {
   return res.status(403).json({ error: "Verification failed" });
 });
 
-// ---------------------------------------------------------------------------
-// POST /webhook/meta  —  Receive Lead Events
-// ---------------------------------------------------------------------------
-// Meta sends a POST body like this (simplified):
-// {
-//   "object": "page",
-//   "entry": [{
-//     "id": "PAGE_ID",
-//     "time": 1234567890,
-//     "changes": [{
-//       "field": "leadgen",
-//       "value": {
-//         "leadgen_id": "LEAD_ID",
-//         "page_id":    "PAGE_ID",
-//         "form_id":    "FORM_ID",
-//         "created_time": 1234567890
-//       }
-//     }]
-//   }]
-// }
-//
-// After parsing the IDs, we optionally call Meta's Graph API to get the
-// actual field values (name, email, phone) the user filled in.
-// ---------------------------------------------------------------------------
+
 router.post("/", async (req, res) => {
   const body = req.body;
 
@@ -117,14 +72,7 @@ router.post("/", async (req, res) => {
   return res.status(200).send("EVENT_RECEIVED");
 });
 
-// ---------------------------------------------------------------------------
-// Helper: Fetch Lead Details from Meta Graph API
-// ---------------------------------------------------------------------------
-// Calls: GET https://graph.facebook.com/{leadgen_id}?fields=field_data&access_token=...
-//
-// Returns an object like: { name: "John", email: "john@example.com", phone: "..." }
-// Falls back to mock data if the token isn't configured or the call fails.
-// ---------------------------------------------------------------------------
+
 async function fetchLeadDetails(leadgenId) {
   const accessToken = process.env.META_PAGE_ACCESS_TOKEN;
 
@@ -162,13 +110,7 @@ async function fetchLeadDetails(leadgenId) {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Helper: Generate Mock Lead Data (used when no access token is available)
-// ---------------------------------------------------------------------------
-// For the PoC demo, this gives us realistic-looking data even without a token.
-// We use the last 4 digits of the leadgen_id to pick from sample arrays so
-// repeated test submissions produce different results.
-// ---------------------------------------------------------------------------
+
 function generateMockLeadData(leadgenId) {
   const names = [
     "Alice Johnson",

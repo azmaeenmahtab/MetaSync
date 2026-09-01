@@ -1,15 +1,4 @@
-/**
- * websocketServer.js
- *
- * Manages all WebSocket connections from the React Native app.
- *
- * Think of this like a "chat room manager":
- *   - When the RN app opens, it connects here (joins the room)
- *   - When the RN app closes, it disconnects (leaves the room)
- *   - When a new lead arrives, we broadcast it to everyone in the room
- *
- * We use the `ws` package — the most popular WebSocket library for Node.js.
- */
+
 
 const { WebSocketServer, WebSocket } = require("ws");
 
@@ -74,12 +63,7 @@ function createWebSocketServer(serverOrPort) {
   return wss;
 }
 
-/**
- * Broadcasts a lead object to ALL connected React Native app instances.
- *
- * This is called by the webhook route the moment a new lead arrives.
- * It loops through every connected client and sends them the JSON message.
- */
+
 function broadcast(lead) {
   const message = JSON.stringify({
     type: "NEW_LEAD",
